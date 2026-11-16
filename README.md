@@ -1,5 +1,7 @@
 # Valheim Mod Sync
 
+> 对方（Windows）拿到这个仓库地址就够了：先读 [AGENTS.md](AGENTS.md)，里面有它那台机器要做的全部事情。
+
 两个人联机玩 Valheim 时，让两台机器（macOS + Windows）上的 mod **永远保持同一份版本**。
 
 - `mods.json` 是唯一真相：每个 mod 的版本号和 SHA256 都锁死在这里。
@@ -13,6 +15,8 @@
 ## 目录结构
 
 ```
+AGENTS.md                    # 给 AI 助手的操作说明（含推送回报流程）
+reports/TEMPLATE.md          # 问题回报模板
 mods.json                    # 共享清单（版本 + SHA256）
 scripts/sync.sh              # macOS 同步
 scripts/play.sh              # macOS 启动器：同步 + 启动
@@ -120,6 +124,16 @@ Mac 用 Metal 渲染，Windows 构建的资源包（新模型/贴图/怪物）�
 - **进不去对方的房间 / 进去就掉线**：两边版本没对齐。看各自 `BepInEx/LogOutput.log` 里的 `Loading [名字 版本]` 行，逐条对比；让她重新双击 `play.bat`。
 - **游戏更新后 mod 崩**：游戏补丁会打断 mod。两边先都更新游戏，再更新清单里的 mod 版本；实在崩可以 `git revert` 上一个 commit。
 - **日志位置**：Mac `~/Library/Logs/IronGate/Valheim/Player.log`；Windows `%USERPROFILE%\AppData\LocalLow\IronGate\Valheim\Player.log`。
+
+## 给 AI 助手
+
+[`AGENTS.md`](AGENTS.md) 是写给任何 AI 助手（Cindy / Claude Code / Codex）的操作说明：允许做什么、怎么同步、怎么核对、失败怎么回报。她的 Windows 机器没有 Git 也没关系，脚本包里带了这个文件。
+
+每次发布还会生成一份期望状态，AI 可以直接拿去和本机日志比对：
+
+```
+https://qinminbao.com/valheim/SYNC-STATUS.md
+```
 
 ## 网络与镜像
 

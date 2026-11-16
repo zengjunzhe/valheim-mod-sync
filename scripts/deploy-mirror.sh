@@ -60,19 +60,27 @@ HEAD
   echo "PKGS"
 } | ssh "$HOST" "REMOTE_DIR='$REMOTE_DIR' bash -s"
 
-# ---------- 3. 脚本包（没网/没有 Git 的机器可以直接下载） ----------
+# ---------- 3. 脚本包 + 期望状态（给人和 AI 对照） ----------
+python3 "$SCRIPT_DIR/print_status.py" "$REPO_DIR/mods.json" > "$TMP/SYNC-STATUS.md"
+
 (
   cd "$REPO_DIR"
   zip -qr "$TMP/valheim-mod-sync.zip" . \
     -x ".git/*" -x "mirror.txt" -x ".DS_Store" -x "*/.DS_Store"
 )
+( cd "$TMP" && zip -q "$TMP/valheim-mod-sync.zip" SYNC-STATUS.md )
+
 scp -q "$TMP/valheim-mod-sync.zip" "$HOST:$REMOTE_DIR/valheim-mod-sync.zip.tmp"
-ssh "$HOST" "mv '$REMOTE_DIR/valheim-mod-sync.zip.tmp' '$REMOTE_DIR/valheim-mod-sync.zip'"
-echo "✓ valheim-mod-sync.zip"
+scp -q "$REPO_DIR/AGENTS.md" "$HOST:$REMOTE_DIR/AGENTS.md.tmp"
+scp -q "$TMP/SYNC-STATUS.md" "$HOST:$REMOTE_DIR/SYNC-STATUS.md.tmp"
+ssh "$HOST" "mv '$REMOTE_DIR/valheim-mod-sync.zip.tmp' '$REMOTE_DIR/valheim-mod-sync.zip'; \
+  mv '$REMOTE_DIR/AGENTS.md.tmp' '$REMOTE_DIR/AGENTS.md'; \
+  mv '$REMOTE_DIR/SYNC-STATUS.md.tmp' '$REMOTE_DIR/SYNC-STATUS.md'"
+echo "✓ valheim-mod-sync.zip / AGENTS.md / SYNC-STATUS.md"
 
 # ---------- 4. 线上验证 ----------
 echo "→ 验证："
-for path in "mods.json" "valheim-mod-sync.zip" "packages/denikson-BepInExPack_Valheim-5.4.2360.zip"; do
+for path in "mods.json" "SYNC-STATUS.md" "AGENTS.md" "valheim-mod-sync.zip" "packages/denikson-BepInExPack_Valheim-5.4.2360.zip"; do
   code="$(curl -sSL -o /dev/null -w '%{http_code}' --max-time 20 -r 0-0 "$BASE_URL/$path")"
   printf '  %-60s HTTP %s\n' "$path" "$code"
   [[ "$code" == "206" || "$code" == "200" ]] || die "验证失败：$BASE_URL/$path"
