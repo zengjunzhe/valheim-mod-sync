@@ -72,6 +72,13 @@
       "version": "3.1.4",
       "sha256": "a2265b58c0207540792f8326572b37986560a166ba777741a8bc4b6ca6680811",
       "note": "捡到东西自动存进附近箱子"
+    },
+    {
+      "namespace": "nussbackermods",
+      "name": "ControllerGamepadRemapping",
+      "version": "3.0.2",
+      "sha256": "c19bb083006a246b20cec9aa530ef40e5a69e3db2bdb44f6417ad07e04fe5df0",
+      "note": "手柄按键重映射，F8 打开设置菜单"
     }
   ]
 }
