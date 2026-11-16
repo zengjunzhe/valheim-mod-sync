@@ -97,6 +97,42 @@ git add mods.json && git commit -m "add Jotunn 2.30.2" && git push
 
 两边都不需要手动下载。
 
+## 移除 mod / 回到原版
+
+### 移除某个 mod（两台机器一起）
+
+清单是唯一标准，删清单 = 两边都停用：
+
+```bash
+scripts/add-mod.sh --remove Advize PlantEasily
+scripts/deploy-mirror.sh
+git commit -am "remove PlantEasily" && git push
+```
+
+下次任意一方启动游戏时，同步脚本会把这个 mod 的文件夹移到 `BepInEx/plugins-disabled/<名字>-<时间>/`，游戏不再加载它。
+
+- **不要**自己手动删 `BepInEx/plugins` 里的文件夹：下次同步会把它装回来。
+- `plugins-disabled` 只是备份；确认不需要后两边都可以删掉整个目录。
+- 一边删了、另一边还没同步时版本会不一致——各自先启动一次同步再联机。
+- 移除「加物品/怪物」类 mod 可能让存档里的相关物品消失；当前清单都是 QoL 类，不涉及。
+
+### 临时回到原版
+
+- **macOS**：清空 Steam 启动项即可，BepInEx 不再加载。
+- **Windows**：BepInEx 是自动注入的，必须把游戏目录里的 `winhttp.dll` 改名（例如 `winhttp.dll.off`），或者移走整个 `BepInEx` 文件夹；只不运行 `play.bat` 不够。
+- 恢复：把文件名改回来 / 重新跑一次同步。
+
+### 彻底卸载
+
+退出游戏后，两台机器都删除游戏目录里的：
+
+```
+BepInEx/  doorstop_config.ini  start_game_bepinex.sh
+start_server_bepinex.sh  doorstop_libs/  winhttp.dll
+```
+
+Mac 再清空 Steam 启动项。脚本目录（`~/valheim-mod-sync` / `C:\valheim-mod-sync`）可以留着，下次想玩再同步。
+
 ## 同步规则
 
 | 情况 | 行为 |
