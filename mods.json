@@ -100,6 +100,34 @@
       "version": "1.8.19",
       "sha256": "5a191f9cf8a10dea8fe8dcc150cfa89a632a0d3c57cd8b3c134c34fda663084d",
       "note": "制作/建造时自动取附近箱子材料"
+    },
+    {
+      "namespace": "ValheimModding",
+      "name": "JsonDotNET",
+      "version": "13.0.4",
+      "sha256": "a221c7be7163ab9739274b962fbd1f63abde65b1418839a62f02aca210868147",
+      "note": "ConfigurationManager 的依赖"
+    },
+    {
+      "namespace": "shudnal",
+      "name": "ConfigurationManager",
+      "version": "1.1.27",
+      "sha256": "d191d50b538ef067c027bb6d5bd3b3c9d6340b5856e7f05ec1c5234766030561",
+      "note": "游戏内修改 mod 配置"
+    },
+    {
+      "namespace": "Azumatt",
+      "name": "AAA_Crafting",
+      "version": "2.1.8",
+      "sha256": "200523ab688decf7b9e7c6ab675125f42537d43cb5a05b7e925f16e75d876ea0",
+      "note": "制作数量输入与配方搜索"
+    },
+    {
+      "namespace": "Azumatt",
+      "name": "Recycle_N_Reclaim",
+      "version": "1.4.4",
+      "sha256": "48769c5fb8b4d4c98a4ca449a3f33155b19163bd9b032853b314daef9d87e0fb",
+      "note": "装备回收拆解成材料"
     }
   ]
 }
