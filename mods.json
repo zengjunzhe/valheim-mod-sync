@@ -72,6 +72,13 @@
       "version": "3.1.4",
       "sha256": "a2265b58c0207540792f8326572b37986560a166ba777741a8bc4b6ca6680811",
       "note": "捡到东西自动存进附近箱子"
+    },
+    {
+      "namespace": "SunPheonyx",
+      "name": "EdgeMapMarker",
+      "version": "1.0.1",
+      "sha256": "d68f4bb2f5fdb67104a6bc5e6f7f4dff99da4cf0b5c4454d2e2c5e310ec8da9c",
+      "note": "小地图边缘显示队友方向/距离"
     }
   ]
 }
