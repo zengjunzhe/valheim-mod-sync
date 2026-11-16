@@ -13,10 +13,18 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 # shellcheck source=lib.sh
 source "$SCRIPT_DIR/lib.sh"
 
-MANIFEST_URL="${MANIFEST_URL:-https://raw.githubusercontent.com/zengjunzhe/valheim-mod-sync/main/mods.json}"
+DEFAULT_MANIFEST_URL="https://qinminbao.com/valheim/mods.json"
+FALLBACK_MANIFEST_URL="https://raw.githubusercontent.com/zengjunzhe/valheim-mod-sync/main/mods.json"
+PACKAGE_BASE_URL="${PACKAGE_BASE_URL:-https://qinminbao.com/valheim/packages}"
+FALLBACK_PACKAGE_BASE_URL="https://thunderstore.io/package/download"
+if [[ -z "${MANIFEST_URL:-}" && -f "$REPO_DIR/mirror.txt" ]]; then
+  MANIFEST_URL="$(head -n 1 "$REPO_DIR/mirror.txt" | tr -d '[:space:]')"
+fi
+MANIFEST_URL="${MANIFEST_URL:-$DEFAULT_MANIFEST_URL}"
 QUIET=0
 [[ "${1:-}" == "--quiet" ]] && QUIET=1
 
@@ -30,6 +38,10 @@ command -v unzip   >/dev/null 2>&1 || die "找不到 unzip。"
 
 V="$(resolve_valheim_dir)" || die "找不到 Valheim 目录。请设置 VALHEIM_DIR 指向包含 valheim.app 的文件夹。"
 
+if pgrep -f "$V/valheim.app/Contents/MacOS/Valheim" >/dev/null 2>&1; then
+  die "Valheim 正在运行，请先退出游戏再同步。"
+fi
+
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
@@ -38,10 +50,17 @@ if [[ -n "${MANIFEST_FILE:-}" ]]; then
   cp "$MANIFEST_FILE" "$TMP/mods.json"
   say "清单：本地文件 $MANIFEST_FILE"
 else
-  curl -fsSL --retry 2 --connect-timeout 10 -H 'Cache-Control: no-cache' \
-    "$MANIFEST_URL?ts=$(date +%s)" -o "$TMP/mods.json" \
-    || die "拉取清单失败：$MANIFEST_URL"
-  say "清单：$MANIFEST_URL"
+  fetched=0
+  for u in "$MANIFEST_URL" "$FALLBACK_MANIFEST_URL"; do
+    [[ -n "$u" ]] || continue
+    if curl -fsSL --retry 1 --connect-timeout 8 -H 'Cache-Control: no-cache' \
+      "$u?ts=$(date +%s)" -o "$TMP/mods.json"; then
+      say "清单：$u"
+      fetched=1
+      break
+    fi
+  done
+  [[ "$fetched" -eq 1 ]] || die "拉取清单失败：服务器和 GitHub 都连不上"
 fi
 
 # 转成 TSV：kind  ns  name  version  sha256
@@ -55,16 +74,28 @@ for m in data.get("mods", []):
     print("\t".join(["mod", m["namespace"], m["name"], m["version"], m["sha256"]]))
 PY
 
+# 包地址：先走自己的服务器，再退回 Thunderstore
+package_urls() {
+  local ns="$1" name="$2" ver="$3"
+  printf '%s\n' "$PACKAGE_BASE_URL/$ns-$name-$ver.zip"
+  printf '%s\n' "$FALLBACK_PACKAGE_BASE_URL/$ns/$name/$ver/"
+}
+
 download_verify() {
-  local url="$1" sha="$2" out="$3"
-  curl -fsSL --retry 3 --connect-timeout 15 "$url" -o "$out" || return 1
-  local got
-  got="$(shasum -a 256 "$out" | awk '{print $1}')"
-  if [[ "$got" != "$sha" ]]; then
-    warn "哈希不匹配（上游可能重新打包了）：$url"
-    return 1
-  fi
-  return 0
+  local ns="$1" name="$2" ver="$3" sha="$4" out="$5"
+  local url got
+  while IFS= read -r url; do
+    [[ -n "$url" ]] || continue
+    if ! curl -fsSL --retry 2 --connect-timeout 10 "$url" -o "$out"; then
+      continue
+    fi
+    got="$(shasum -a 256 "$out" | awk '{print $1}')"
+    if [[ "$got" == "$sha" ]]; then
+      return 0
+    fi
+    warn "哈希不匹配，换下一个地址：$url"
+  done < <(package_urls "$ns" "$name" "$ver")
+  return 1
 }
 
 # unzip 对 Windows 路径分隔符只给警告并返回 1，这种情况仍然解压成功
@@ -116,7 +147,7 @@ while IFS=$'\t' read -r kind ns name ver sha; do
     fi
 
     say "→ BepInEx $ver"
-    if ! download_verify "https://thunderstore.io/package/download/$ns/$name/$ver/" "$sha" "$TMP/bepinex.zip"; then
+    if ! download_verify "$ns" "$name" "$ver" "$sha" "$TMP/bepinex.zip"; then
       die "BepInEx 下载失败，已中止（游戏目录未改动）"
     fi
     rm -rf "$TMP/bepinex"
@@ -150,7 +181,7 @@ while IFS=$'\t' read -r kind ns name ver sha; do
   fi
 
   say "→ $id $ver"
-  if ! download_verify "https://thunderstore.io/package/download/$ns/$name/$ver/" "$sha" "$TMP/$id.zip"; then
+  if ! download_verify "$ns" "$name" "$ver" "$sha" "$TMP/$id.zip"; then
     warn "跳过 $id（下载或校验失败）"
     failed=$((failed + 1))
     # 保留原有状态，避免下次误判成“从未装过”

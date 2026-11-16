@@ -19,9 +19,22 @@
 #>
 param(
     [string]$ValheimDir = "",
-    [string]$ManifestUrl = "https://raw.githubusercontent.com/zengjunzhe/valheim-mod-sync/main/mods.json",
+    [string]$ManifestUrl = "",
     [switch]$Quiet
 )
+
+$DefaultManifestUrl = "https://qinminbao.com/valheim/mods.json"
+$FallbackManifestUrl = "https://raw.githubusercontent.com/zengjunzhe/valheim-mod-sync/main/mods.json"
+$PackageBaseUrl = "https://qinminbao.com/valheim/packages"
+$FallbackPackageBaseUrl = "https://thunderstore.io/package/download"
+if (-not $ManifestUrl) {
+    $repoRoot = Split-Path -Parent $PSScriptRoot
+    $mirrorFile = Join-Path $repoRoot "mirror.txt"
+    if (Test-Path $mirrorFile) {
+        $ManifestUrl = (Get-Content -Path $mirrorFile -TotalCount 1).Trim()
+    }
+}
+if (-not $ManifestUrl) { $ManifestUrl = $DefaultManifestUrl }
 
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
@@ -72,16 +85,26 @@ function Resolve-ValheimDir {
 
 function Get-PackageFile {
     param(
-        [string]$Url,
+        [string]$Namespace,
+        [string]$Name,
+        [string]$Version,
         [string]$OutFile,
         [string]$Sha256
     )
 
-    Invoke-WebRequest -Uri $Url -OutFile $OutFile -UseBasicParsing
-    $actual = (Get-FileHash -Path $OutFile -Algorithm SHA256).Hash.ToLowerInvariant()
-    if ($actual -ne $Sha256.ToLowerInvariant()) {
-        throw "SHA256 mismatch: $Url"
+    $urls = @(
+        "$PackageBaseUrl/$Namespace-$Name-$Version.zip",
+        "$FallbackPackageBaseUrl/$Namespace/$Name/$Version/"
+    )
+
+    foreach ($url in $urls) {
+        try {
+            Invoke-WebRequest -Uri $url -OutFile $OutFile -UseBasicParsing
+            $actual = (Get-FileHash -Path $OutFile -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actual -eq $Sha256.ToLowerInvariant()) { return }
+        } catch { }
     }
+    throw "Failed to download $Namespace-$Name $Version (hash mismatch or network)"
 }
 
 $V = Resolve-ValheimDir -Explicit $ValheimDir
@@ -89,11 +112,24 @@ if (-not $V) {
     Stop-WithError "Valheim not found. Pass -ValheimDir 'D:\Steam\steamapps\common\Valheim'."
 }
 
+if (Get-Process -Name "valheim" -ErrorAction SilentlyContinue) {
+    Stop-WithError "Close Valheim before syncing."
+}
+
 $ts = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-try {
-    $manifest = Invoke-RestMethod -Uri "$ManifestUrl`?ts=$ts" -UseBasicParsing
-} catch {
-    Stop-WithError "Failed to fetch manifest: $($_.Exception.Message)"
+$manifest = $null
+$manifestErr = $null
+foreach ($url in @($ManifestUrl, $FallbackManifestUrl)) {
+    if (-not $url) { continue }
+    try {
+        $manifest = Invoke-RestMethod -Uri "$url`?ts=$ts" -UseBasicParsing
+        break
+    } catch {
+        $manifestErr = $_.Exception.Message
+    }
+}
+if (-not $manifest) {
+    Stop-WithError "Failed to fetch manifest: $manifestErr"
 }
 
 $tmp = Join-Path $env:TEMP ("valheim-mod-sync-" + [Guid]::NewGuid().ToString("N"))
@@ -118,7 +154,7 @@ try {
     } else {
         Write-Info "-> BepInEx $($pack.version)"
         $packZip = Join-Path $tmp "bepinex.zip"
-        Get-PackageFile -Url "https://thunderstore.io/package/download/$($pack.namespace)/$($pack.name)/$($pack.version)/" -OutFile $packZip -Sha256 $pack.sha256
+        Get-PackageFile -Namespace $pack.namespace -Name $pack.name -Version $pack.version -OutFile $packZip -Sha256 $pack.sha256
 
         $packExtract = Join-Path $tmp "bepinex"
         Expand-Archive -Path $packZip -DestinationPath $packExtract -Force
@@ -167,7 +203,7 @@ try {
 
         Write-Info "-> $id $($mod.version)"
         $zip = Join-Path $tmp "$id.zip"
-        Get-PackageFile -Url "https://thunderstore.io/package/download/$($mod.namespace)/$($mod.name)/$($mod.version)/" -OutFile $zip -Sha256 $mod.sha256
+        Get-PackageFile -Namespace $mod.namespace -Name $mod.name -Version $mod.version -OutFile $zip -Sha256 $mod.sha256
 
         if (Test-Path $dest) { Remove-Item -Path $dest -Recurse -Force }
         New-Item -ItemType Directory -Path $dest -Force | Out-Null

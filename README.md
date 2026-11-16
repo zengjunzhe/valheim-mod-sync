@@ -8,6 +8,8 @@
 
 > Valheim 没有官方创意工坊，也没有"进服自动下载 mod"的原生机制。这个项目把同步放进**游戏启动流程**：Steam 启动 → 先同步 → 再启动游戏。所以是"下次启动生效"，不是游戏内热更新；如果对方正在游戏里，需要重开一次。
 
+清单和安装包放在自己的京东云服务器上（`https://qinminbao.com/valheim/`），国内直连；服务器不可用时自动退回 GitHub / Thunderstore。
+
 ## 目录结构
 
 ```
@@ -15,6 +17,8 @@ mods.json                    # 共享清单（版本 + SHA256）
 scripts/sync.sh              # macOS 同步
 scripts/play.sh              # macOS 启动器：同步 + 启动
 scripts/add-mod.sh           # 往清单里加/删 mod（自动算哈希）
+scripts/deploy-mirror.sh     # 发布清单 + 安装包到京东云
+scripts/print_packages.py    # 部署时输出包列表
 scripts/sync.ps1             # Windows 同步
 scripts/play.bat             # Windows 启动器：同步 + 启动
 scripts/validate.py          # 清单校验（CI 也会跑）
@@ -22,7 +26,13 @@ scripts/validate.py          # 清单校验（CI 也会跑）
 
 ## 首次设置 · macOS
 
-1. 拿到这个仓库，放在一个固定位置，例如 `~/valheim-mod-sync`。
+1. 拿到项目，放在固定位置 `~/valheim-mod-sync`：
+
+   ```bash
+   git clone https://github.com/zengjunzhe/valheim-mod-sync.git ~/valheim-mod-sync
+   ```
+
+   GitHub 打不开的话，下载 `https://qinminbao.com/valheim/valheim-mod-sync.zip` 解压到同一位置即可。
 2. 同步一次（会装 BepInEx 和清单里的全部 mod）：
 
    ```bash
@@ -44,7 +54,7 @@ scripts/validate.py          # 清单校验（CI 也会跑）
 
 ## 首次设置 · Windows
 
-1. 在仓库页面点 **Code → Download ZIP**，解压到固定位置，例如 `C:\valheim-mod-sync`。
+1. 下载 `https://qinminbao.com/valheim/valheim-mod-sync.zip`（GitHub 能开也可以用仓库的 Code → Download ZIP），解压到固定位置，例如 `C:\valheim-mod-sync`。
 2. 双击 `scripts\play.bat`。第一次会装 BepInEx 和全部 mod，然后启动游戏。
 3. 想更自动（从 Steam 启动也会先同步）：Steam → 属性 → 启动选项，填：
 
@@ -69,7 +79,10 @@ scripts/add-mod.sh ValheimModding Jotunn 2.30.2
 # 删
 scripts/add-mod.sh --remove Azumatt AzuAutoStore
 
-# 提交
+# 发布到京东云（把清单和安装包同步上去，对方那边马上能拉到）
+scripts/deploy-mirror.sh
+
+# 留档
 git add mods.json && git commit -m "add Jotunn 2.30.2" && git push
 ```
 
@@ -92,6 +105,7 @@ git add mods.json && git commit -m "add Jotunn 2.30.2" && git push
 - **哈希校验**：每个包都必须对上 `mods.json` 里的 SHA256，防止上游偷偷重新打包导致两边文件不同。
 - **状态文件**：`BepInEx/plugins/.mod-sync-state.json`（Windows）/ `.mod-sync-state.tsv`（macOS），记录已装版本，不要手改。
 - Windows 和 macOS 用的是同一批 Thunderstore 包（mod 本身是跨平台的托管 DLL），所以清单只需要一份。
+- **安装包缓存**：`scripts/deploy-mirror.sh` 会把清单和所有 zip 发布到 `https://qinminbao.com/valheim/`，玩家端优先从这里下载；失败时自动退回 GitHub raw（清单）和 Thunderstore（安装包）。
 
 ## Mac 上要挑 mod
 
@@ -106,6 +120,14 @@ Mac 用 Metal 渲染，Windows 构建的资源包（新模型/贴图/怪物）�
 - **进不去对方的房间 / 进去就掉线**：两边版本没对齐。看各自 `BepInEx/LogOutput.log` 里的 `Loading [名字 版本]` 行，逐条对比；让她重新双击 `play.bat`。
 - **游戏更新后 mod 崩**：游戏补丁会打断 mod。两边先都更新游戏，再更新清单里的 mod 版本；实在崩可以 `git revert` 上一个 commit。
 - **日志位置**：Mac `~/Library/Logs/IronGate/Valheim/Player.log`；Windows `%USERPROFILE%\AppData\LocalLow\IronGate\Valheim\Player.log`。
+
+## 网络与镜像
+
+默认从自己的服务器取：清单 `https://qinminbao.com/valheim/mods.json`，安装包 `https://qinminbao.com/valheim/packages/`。服务器连不上时脚本会自动退回 GitHub raw（清单）和 Thunderstore（安装包），哈希校验能保证退回来的文件和清单一致。
+
+服务器上的内容要手动发布：改完清单跑一次 `scripts/deploy-mirror.sh`（默认 SSH 别名 `baosi-prod`）。
+
+临时换地址可以在仓库根目录建 `mirror.txt`（已忽略，不需要提交），写一行清单地址；或直接设环境变量 `MANIFEST_URL` / `PACKAGE_BASE_URL`。
 
 ## 进阶：真正的"进服自动装"
 
