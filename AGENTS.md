@@ -47,7 +47,13 @@ Done: 0 installed/updated, 9 up to date, 0 disabled.
 bash ~/valheim-mod-sync/scripts/sync.sh
 ```
 
-验证日志：`~/Library/Logs/IronGate/Valheim/Player.log` 和游戏目录下 `BepInEx/LogOutput.log`。
+验证加载：
+
+```bash
+bash ~/valheim-mod-sync/scripts/check.sh
+```
+
+它读取 `BepInEx/LogOutput.log`，逐条对比清单并给出 ✓/✗；日志缺失说明这次启动没走 `play.sh`。
 
 ## 什么时候同步
 

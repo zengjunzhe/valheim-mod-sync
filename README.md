@@ -20,6 +20,7 @@ reports/TEMPLATE.md          # 问题回报模板
 mods.json                    # 共享清单（版本 + SHA256）
 scripts/sync.sh              # macOS 同步
 scripts/play.sh              # macOS 启动器：同步 + 启动
+scripts/check.sh             # macOS 自检：日志里的已加载 mod vs 清单
 scripts/add-mod.sh           # 往清单里加/删 mod（自动算哈希）
 scripts/deploy-mirror.sh     # 发布清单 + 安装包到京东云
 scripts/print_packages.py    # 部署时输出包列表
@@ -152,6 +153,24 @@ Mac 再清空 Steam 启动项。脚本目录（`~/valheim-mod-sync` / `C:\valhei
 Mac 用 Metal 渲染，Windows 构建的资源包（新模型/贴图/怪物）容易变粉、变黑或隐形；纯逻辑类 mod 基本没问题。当前清单里都是逻辑/QoL 类。
 
 加新的资源类 mod 时，先在 Mac 上单独试一次，坏了就 `--remove` 再推一次。
+
+## 怎么确认加载成功（macOS）
+
+1. 从 Steam 启动游戏，进到主菜单。
+2. 主菜单应该显示 `You are playing a modded version of Valheim`（版本号附近也会有 modded 标记）。
+3. 终端跑自检：
+
+```bash
+bash ~/valheim-mod-sync/scripts/check.sh
+```
+
+它会读 `BepInEx/LogOutput.log`，逐条对比清单并输出 ✓/✗：
+
+- 全部 ✓：加载正常
+- `✗ 未加载` 或 `✗ 版本不一致`：先 `bash scripts/sync.sh`；仍不对就把输出和 `LogOutput.log` 发给对方
+- `✗ 还没有 LogOutput.log`：这次启动没走 `play.sh`，检查 Steam 启动项
+
+游戏内也能直接看出来：手柄 mod 按 **F8** 出菜单、背包多出装备栏、建造锤能自由旋转、两人能同时开同一个箱子。
 
 ## 排错
 
