@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-16",
+  "game": "valheim",
+  "valheimVersion": "1.0",
+  "bepinex": {
+    "namespace": "denikson",
+    "name": "BepInExPack_Valheim",
+    "version": "5.4.2360",
+    "sha256": "6bca77b1016acfe0ffaebb6534c84b12ae8d12e5a96abbf59ec6e4526204fc6f"
+  },
+  "mods": [
+    {
+      "namespace": "ValheimModding",
+      "name": "Jotunn",
+      "version": "2.30.2",
+      "sha256": "8aae92da2be0eb6820cd4cf57e2f6c1d6ad0d738d4915966e7c3d7a94e9a9b0f",
+      "note": "前置框架，多个 mod 依赖它"
+    },
+    {
+      "namespace": "ValheimModding",
+      "name": "YamlDotNet",
+      "version": "16.3.1",
+      "sha256": "2280480d2add7d6a7a17b882f9b755145160c852e89a14794d1493d08495d2ac",
+      "note": "ExtraSlots 的依赖"
+    },
+    {
+      "namespace": "shudnal",
+      "name": "ConditionalConfigSync",
+      "version": "1.0.11",
+      "sha256": "19146ae5a25cc3c7bddf47a6d17e4b8fb2c6c29c97360abd93664ba7a4433a62",
+      "note": "ExtraSlots 的依赖，负责配置同步"
+    },
+    {
+      "namespace": "shudnal",
+      "name": "ExtraSlots",
+      "version": "1.2.24",
+      "sha256": "21733780a939150356b35752fa5c211f1e6920ead59b5ecd480d35cd9fd8404c",
+      "note": "额外装备栏 / 快捷栏"
+    },
+    {
+      "namespace": "Goldenrevolver",
+      "name": "Quick_Stack_Store_Sort_Trash_Restock",
+      "version": "1.4.16",
+      "sha256": "4c1dfd872972783f3eb63384ca889b51fdd75836e679a4fac1de80e097f86538",
+      "note": "一键存仓、整理、丢弃"
+    },
+    {
+      "namespace": "MSchmoecker",
+      "name": "MultiUserChest",
+      "version": "0.6.2",
+      "sha256": "822233992ec47d43b134265e57b42b89682482fb884005c3b23aba98c0352949",
+      "note": "两个人可以同时打开同一个箱子"
+    },
+    {
+      "namespace": "ComfyMods",
+      "name": "Gizmo",
+      "version": "1.16.0",
+      "sha256": "92c2a47f014268de12941d190cb7706552c13e22cd4fed9a22725dfd6abe07a8",
+      "note": "建造时自由旋转 / 微调"
+    },
+    {
+      "namespace": "Advize",
+      "name": "PlantEasily",
+      "version": "2.3.1",
+      "sha256": "33642b3ff193e220fbe9301ecd0a2a150bf60c551f0fa06cfc03d96bcdc6ffe0",
+      "note": "菜地按网格种、批量收"
+    },
+    {
+      "namespace": "Azumatt",
+      "name": "AzuAutoStore",
+      "version": "3.1.4",
+      "sha256": "a2265b58c0207540792f8326572b37986560a166ba777741a8bc4b6ca6680811",
+      "note": "捡到东西自动存进附近箱子"
+    }
+  ]
+}
