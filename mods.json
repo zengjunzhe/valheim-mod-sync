@@ -86,6 +86,20 @@
       "version": "0.1.0",
       "sha256": "6939973772b767fdc80d61f5660d5cfb9bcfb4720df5b7509b53d0cca1a23f36",
       "note": "队友头顶发光标记，隔墙/隔山可见，屏幕边缘箭头"
+    },
+    {
+      "namespace": "DrummerCraig",
+      "name": "OneMapToRuleThemAll",
+      "version": "2.8.3",
+      "sha256": "309df2365adb1127cbfd707d07e1cdf75eac4f5a9bea616a60c8a7ff80861727",
+      "note": "全队共享地图迷雾与图钉"
+    },
+    {
+      "namespace": "Azumatt",
+      "name": "AzuCraftyBoxes",
+      "version": "1.8.19",
+      "sha256": "5a191f9cf8a10dea8fe8dcc150cfa89a632a0d3c57cd8b3c134c34fda663084d",
+      "note": "制作/建造时自动取附近箱子材料"
     }
   ]
 }
