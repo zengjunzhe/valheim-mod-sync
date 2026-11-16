@@ -79,6 +79,13 @@
       "version": "1.0.1",
       "sha256": "d68f4bb2f5fdb67104a6bc5e6f7f4dff99da4cf0b5c4454d2e2c5e310ec8da9c",
       "note": "小地图边缘显示队友方向/距离"
+    },
+    {
+      "namespace": "rauschekuh",
+      "name": "OdinsBeacon",
+      "version": "0.1.0",
+      "sha256": "6939973772b767fdc80d61f5660d5cfb9bcfb4720df5b7509b53d0cca1a23f36",
+      "note": "队友头顶发光标记，隔墙/隔山可见，屏幕边缘箭头"
     }
   ]
 }
