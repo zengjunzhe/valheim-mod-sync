@@ -95,13 +95,6 @@
       "note": "全队共享地图迷雾与图钉"
     },
     {
-      "namespace": "Azumatt",
-      "name": "AzuCraftyBoxes",
-      "version": "1.8.19",
-      "sha256": "5a191f9cf8a10dea8fe8dcc150cfa89a632a0d3c57cd8b3c134c34fda663084d",
-      "note": "制作/建造时自动取附近箱子材料"
-    },
-    {
       "namespace": "ValheimModding",
       "name": "JsonDotNET",
       "version": "13.0.4",
