@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-16",
+  "updatedAt": "2026-11-17",
   "game": "valheim",
   "valheimVersion": "1.0",
   "bepinex": {
@@ -114,27 +114,6 @@
       "version": "1.1.27",
       "sha256": "d191d50b538ef067c027bb6d5bd3b3c9d6340b5856e7f05ec1c5234766030561",
       "note": "游戏内修改 mod 配置"
-    },
-    {
-      "namespace": "Azumatt",
-      "name": "AAA_Crafting",
-      "version": "2.1.8",
-      "sha256": "200523ab688decf7b9e7c6ab675125f42537d43cb5a05b7e925f16e75d876ea0",
-      "note": "制作数量输入与配方搜索"
-    },
-    {
-      "namespace": "Azumatt",
-      "name": "Recycle_N_Reclaim",
-      "version": "1.4.4",
-      "sha256": "48769c5fb8b4d4c98a4ca449a3f33155b19163bd9b032853b314daef9d87e0fb",
-      "note": "装备回收拆解成材料"
-    },
-    {
-      "namespace": "ishid4",
-      "name": "BetterArchery",
-      "version": "2.0.5",
-      "sha256": "509f3959d40beb8b39e74c901cde4442593af2ae6ac74ae1656e5111435bccaa",
-      "note": "弓箭手感/功能增强"
     }
   ]
 }
