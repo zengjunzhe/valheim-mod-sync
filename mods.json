@@ -107,6 +107,12 @@
       "version": "1.1.27",
       "sha256": "d191d50b538ef067c027bb6d5bd3b3c9d6340b5856e7f05ec1c5234766030561",
       "note": "游戏内修改 mod 配置"
+    },
+    {
+      "namespace": "Azumatt",
+      "name": "AzuCraftyBoxes",
+      "version": "1.8.19",
+      "sha256": "5a191f9cf8a10dea8fe8dcc150cfa89a632a0d3c57cd8b3c134c34fda663084d"
     }
   ]
 }
