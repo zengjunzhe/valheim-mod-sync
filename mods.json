@@ -88,13 +88,6 @@
       "note": "队友头顶发光标记，隔墙/隔山可见，屏幕边缘箭头"
     },
     {
-      "namespace": "DrummerCraig",
-      "name": "OneMapToRuleThemAll",
-      "version": "2.8.3",
-      "sha256": "309df2365adb1127cbfd707d07e1cdf75eac4f5a9bea616a60c8a7ff80861727",
-      "note": "全队共享地图迷雾与图钉"
-    },
-    {
       "namespace": "ValheimModding",
       "name": "JsonDotNET",
       "version": "13.0.4",
