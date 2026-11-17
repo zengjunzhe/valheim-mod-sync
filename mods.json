@@ -113,6 +113,13 @@
       "version": "2.8.3",
       "sha256": "309df2365adb1127cbfd707d07e1cdf75eac4f5a9bea616a60c8a7ff80861727",
       "note": "全队共享地图迷雾与图钉"
+    },
+    {
+      "namespace": "Azumatt",
+      "name": "Recycle_N_Reclaim",
+      "version": "1.4.4",
+      "sha256": "48769c5fb8b4d4c98a4ca449a3f33155b19163bd9b032853b314daef9d87e0fb",
+      "note": "装备回收拆解成材料"
     }
   ]
 }
